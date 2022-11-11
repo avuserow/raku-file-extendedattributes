@@ -1,14 +1,14 @@
 {
+  "auth": "zef:avuserow",
   "authors": [
     "Adrian Kreher"
   ],
-  "auth": "zef:avuserow",
   "build-depends": [
   ],
   "depends": [
     "Unix::errno"
   ],
-  "description": "Access extended attributes of filesystem objects (xattr)",
+  "description": "access extended attributes of files",
   "license": "Artistic-2.0",
   "name": "File::ExtendedAttributes",
   "perl": "6.d",
@@ -17,7 +17,7 @@
   },
   "resources": [
   ],
-  "source-url": "",
+  "source-url": "https://github.com/avuserow/raku-file-extendedattributes.git",
   "tags": [
     "filesystem",
     "metadata",
