@@ -2,12 +2,13 @@
   "authors": [
     "Adrian Kreher"
   ],
+  "auth": "zef:avuserow",
   "build-depends": [
   ],
   "depends": [
     "Unix::errno"
   ],
-  "description": "Access extended attributes of filesystem objects",
+  "description": "Access extended attributes of filesystem objects (xattr)",
   "license": "Artistic-2.0",
   "name": "File::ExtendedAttributes",
   "perl": "6.d",
@@ -18,6 +19,9 @@
   ],
   "source-url": "",
   "tags": [
+    "filesystem",
+    "metadata",
+    "unix"
   ],
   "test-depends": [
   ],

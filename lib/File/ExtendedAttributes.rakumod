@@ -1,4 +1,4 @@
-unit module File::ExtendedAttributes;
+unit module File::ExtendedAttributes:auth<zef:avuserow>;
 
 use NativeCall;
 use Unix::errno;
