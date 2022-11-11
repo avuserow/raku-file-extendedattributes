@@ -21,21 +21,12 @@ our sub list-attributes(Str() $path) is export {
     my $size = listxattr($path, Any, 0);
     handle-error() if $size < 0;
 
-    my $out = CArray[uint8].new: 0 xx $size;
+    my $out = CArray[uint8].allocate($size);
     my $read = listxattr($path, $out, $size);
     handle-error() if $read < 0;
 
-    my @keys;
-    my $current = "";
-    for ^$size -> $i {
-        if $out[$i] == 0 {
-            push @keys, $current;
-            $current = "";
-        } else {
-            $current ~= $out[$i].chr;
-        }
-    }
-    return @keys;
+    # attributes are returned as a NULL separated list
+    return Buf.new($out.list).decode.split("\0", :skip-empty);
 }
 
 sub getxattr(Str $path, Str $key, CArray[uint8] $value, size_t $size) returns size_t is native {*}
@@ -44,7 +35,7 @@ our sub get-attribute(Str() $path, Str $key, Bool :$bin) is export {
     my $size = getxattr($path, $key, Any, 0);
     handle-error() if $size < 0;
 
-    my $out = CArray[uint8].new: 0 xx $size;
+    my $out = CArray[uint8].allocate($size);
     my $read = getxattr($path, $key, $out, $size);
     handle-error() if $read < 0;
 
