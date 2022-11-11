@@ -1,0 +1,41 @@
+use Test;
+use File::ExtendedAttributes;
+
+plan 3;
+
+skip-rest "$*CWD is not writable, cannot continue" unless $*CWD ~~ :w;
+
+sub temppath {
+    my $random = ("a".."z").roll(8).join;
+
+    # on many systems, /tmp is on tmpfs which only partially supports extended attributes
+    $*CWD.child("tmp-file-extattr-test-{time}-$random.txt")
+}
+
+my $path = temppath();
+$path.spurt: "hello, world";
+END if $path && $path ~~ :e {
+    $path.IO.unlink;
+}
+
+CATCH {
+    when X::File::ExtendedAttributes::Unsupported {
+        skip-rest('xattrs not supported on the temporary file, skipping tests');
+        exit;
+    }
+}
+
+# get the initial set of keys - some systems have default ones for things like SELinux
+my @initial-keys = $path.&list-attributes;
+
+my $value = ("a".."z").roll(8).join;
+$path.&set-attribute("user.test", $value);
+
+is $path.&get-attribute("user.test"), $value, 'get attr';
+is $path.&list-attributes.Set (-) @initial-keys, ["user.test"], 'list attrs';
+
+$path.&remove-attribute("user.test");
+
+is $path.&list-attributes, @initial-keys, 'after remove attr';
+
+done-testing;

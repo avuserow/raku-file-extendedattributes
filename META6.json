@@ -1,0 +1,25 @@
+{
+  "authors": [
+    "Adrian Kreher"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+    "Unix::errno"
+  ],
+  "description": "Access extended attributes of filesystem objects",
+  "license": "Artistic-2.0",
+  "name": "File::ExtendedAttributes",
+  "perl": "6.d",
+  "provides": {
+    "File::ExtendedAttributes": "lib/File/ExtendedAttributes.rakumod"
+  },
+  "resources": [
+  ],
+  "source-url": "",
+  "tags": [
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.1"
+}
