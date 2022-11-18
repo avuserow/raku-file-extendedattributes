@@ -1,6 +1,8 @@
 Revision history for File-ExtendedAttributes
 
 {{$NEXT}}
+
+0.0.2  2022-11-17T22:30:22-06:00
     - Rebuild to fix README
 
 0.0.1  2022-11-10T23:31:22-06:00
