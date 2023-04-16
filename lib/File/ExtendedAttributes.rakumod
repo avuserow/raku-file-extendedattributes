@@ -141,7 +141,17 @@ Removes the given attribute. If the specified attribute does not exist, then an 
 
 =head1 ERRORS
 
-If an error occurs, C<die> is called with the error message (provided by C<errno>). Error reporting may not be reliable if another thread can overwrite C<errno>.
+If an error occurs, a Failure is returned. If the error is C<ENOTSUP>, then an Exception of C<X::File::ExtendedAttributes::Unsupported> is thrown. If the error is C<ENODATA>, then C<X::File::ExtendedAttributes::NoData> is returned. Otherwise, an ad-hoc exception is thrown.
+
+These are returned as Failures to enable the following approach in one-liners and shorter scripts:
+
+=begin code :lang<raku>
+
+my @values = @files.map({get-attribute($_, 'user.my-data') || ''});
+
+=end code
+
+If you do not check the returned value for truth, an exception will be raised instead.
 
 =head1 SEE ALSO
 
@@ -155,7 +165,7 @@ Adrian Kreher <avuserow@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2022 Adrian Kreher
+Copyright 2022-2023 Adrian Kreher
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 

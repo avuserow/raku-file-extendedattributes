@@ -1,6 +1,8 @@
 Revision history for File-ExtendedAttributes
 
 {{$NEXT}}
+    - Use Failures to handle errors for better ergonomics
+    - Handle ENODATA correctly and use a dedicated exception type
 
 0.0.2  2022-11-17T22:30:22-06:00
     - Rebuild to fix README
