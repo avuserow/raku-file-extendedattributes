@@ -4,26 +4,50 @@ use NativeCall;
 use Unix::errno;
 
 class X::File::ExtendedAttributes::Unsupported is Exception {
+    has $.path = '';
+    has $.key = '';
+
     method message() {
-        "Extended attributes are unsupported on this filesystem"
+        my $msg = "Extended attributes are unsupported on the filesystem of '$!path'";
+        if $!key && $!key.starts-with('user.') {
+            $msg ~= ": key '$!key'";
+        } elsif $!key {
+            $msg ~= ": key '$!key' may need to start with the proper namespace, typically 'user.'";
+        }
+        $msg;
     }
 }
 
-sub handle-error {
+class X::File::ExtendedAttributes::NoData is Exception {
+    has $.path = '';
+    has $.key = '';
+
+    method message() {
+        "Path '$!path' has no data for extended attribute key '$!key'";
+    }
+}
+
+
+sub handle-error(:$path, :$key) {
     my $err = errno();
-    die X::File::ExtendedAttributes::Unsupported.new if $err ~~ /'not supported'/;
-    die $err;
+    fail X::File::ExtendedAttributes::Unsupported.new(:$path, :$key) if $err ~~ /'not supported'/;
+
+    # TODO: Unix::errno gets this description wrong, look up this value by number
+    # See https://github.com/lizmat/Unix-errno/issues/1
+    fail X::File::ExtendedAttributes::NoData.new(:$path, :$key) if +$err == 61;
+
+    fail $err.gist;
 }
 
 sub listxattr(Str $path, CArray[uint8] $list, size_t $size) returns ssize_t is native {*}
 
 our sub list-attributes(Str() $path) is export {
     my $size = listxattr($path, Any, 0);
-    handle-error() if $size < 0;
+    fail handle-error(:$path) if $size < 0;
 
     my $out = CArray[uint8].allocate($size);
     my $read = listxattr($path, $out, $size);
-    handle-error() if $read < 0;
+    fail handle-error(:$path) if $read < 0;
 
     # attributes are returned as a NULL separated list
     return Buf.new($out.list).decode.split("\0", :skip-empty);
@@ -33,11 +57,11 @@ sub getxattr(Str $path, Str $key, CArray[uint8] $value, size_t $size) returns si
 
 our sub get-attribute(Str() $path, Str $key, Bool :$bin) is export {
     my $size = getxattr($path, $key, Any, 0);
-    handle-error() if $size < 0;
+    fail handle-error(:$path, :$key) if $size < 0;
 
     my $out = CArray[uint8].allocate($size);
     my $read = getxattr($path, $key, $out, $size);
-    handle-error() if $read < 0;
+    fail handle-error(:$path, :$key) if $read < 0;
 
     my $data = Blob[uint8].new($out.list);
     return $data if $bin;
@@ -50,20 +74,20 @@ sub setxattr_str(Str $path, Str $key, Str $value, size_t $size, int32 $flags) re
 our proto set-attribute(Str() $path, Str $key, $value) is export {*}
 multi sub set-attribute(Str() $path, Str $key, Str $value) {
     my $rv = setxattr_str($path, $key, $value, $value.encode.bytes, 0);
-    handle-error() if $rv < 0;
+    fail handle-error(:$path, :$key) if $rv < 0;
 }
 
 multi sub set-attribute(Str() $path, Str $key, Blob[uint8] $value) {
     my $in = CArray[uint8].new: $value;
     my $rv = setxattr_blob($path, $key, $in, $value.elems, 0);
-    handle-error() if $rv < 0;
+    fail handle-error(:$path, :$key) if $rv < 0;
 }
 
 sub removexattr(Str $path, Str $key) returns int32 is native {*}
 
 our sub remove-attribute(Str() $path, Str $key) is export {
     my $rv = removexattr($path, $key);
-    handle-error() if $rv < 0;
+    fail handle-error(:$path, :$key) if $rv < 0;
 }
 
 =begin pod
