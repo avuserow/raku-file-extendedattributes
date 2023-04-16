@@ -1,6 +1,8 @@
 Revision history for File-ExtendedAttributes
 
 {{$NEXT}}
+
+0.0.3  2023-04-16T15:10:25-05:00
     - Use Failures to handle errors for better ergonomics
     - Handle ENODATA correctly and use a dedicated exception type
 

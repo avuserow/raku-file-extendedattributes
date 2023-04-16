@@ -56,7 +56,15 @@ Removes the given attribute. If the specified attribute does not exist, then an 
 ERRORS
 ======
 
-If an error occurs, `die` is called with the error message (provided by `errno`). Error reporting may not be reliable if another thread can overwrite `errno`.
+If an error occurs, a Failure is returned. If the error is `ENOTSUP`, then an Exception of `X::File::ExtendedAttributes::Unsupported` is thrown. If the error is `ENODATA`, then `X::File::ExtendedAttributes::NoData` is returned. Otherwise, an ad-hoc exception is thrown.
+
+These are returned as Failures to enable the following approach in one-liners and shorter scripts:
+
+```raku
+my @values = @files.map({get-attribute($_, 'user.my-data') || ''});
+```
+
+If you do not check the returned value for truth, an exception will be raised instead.
 
 SEE ALSO
 ========
@@ -73,7 +81,7 @@ Adrian Kreher <avuserow@gmail.com>
 COPYRIGHT AND LICENSE
 =====================
 
-Copyright 2022 Adrian Kreher
+Copyright 2022-2023 Adrian Kreher
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 
